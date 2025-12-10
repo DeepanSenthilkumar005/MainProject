@@ -7,7 +7,6 @@ export default function ResultBox({ result }) {
       <div className="Analysic Graph">
         <Speedometer value={50} />
       </div>
-      <p className="font-mono font-bold text-gray-600 w-full">Result : This text appears 100% AI Generated based on our detection model.</p>
       <hr />
       <div className="grid grid-cols-2 p-4 gap-4 font-mono font-semibold">
         <div className="wordCount">
