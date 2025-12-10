@@ -1,0 +1,53 @@
+# ============================
+# Node Modules (Frontend/Backend)
+# ============================
+node_modules/
+**/node_modules/
+
+# ============================
+# Environment Files
+# ============================
+.env
+.env.*       # .env.dev, .env.production, etc.
+*/.env
+*/.env.*
+
+# ============================
+# Logs
+# ============================
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ============================
+# Build Outputs (Frontend/Backend)
+# ============================
+dist/
+build/
+out/
+.next/
+coverage/
+*.tsbuildinfo
+
+# ============================
+# System Files
+# ============================
+.DS_Store
+Thumbs.db
+
+# ============================
+# IDE Folders
+# ============================
+.vscode/
+.idea/
+*.swp
+
+# ============================
+# Temporary Files
+# ============================
+*.tmp
+*.cache
+.cache/
+logs/
