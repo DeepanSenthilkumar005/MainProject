@@ -1,24 +1,47 @@
+import { useEffect, useState } from "react";
 import ReactSpeedometer from "react-d3-speedometer";
 
+// Smooth animation helper
+function animate({ from, to, duration, onUpdate, onComplete }) {
+  const start = performance.now();
+
+  function frame(now) {
+    const progress = Math.min((now - start) / duration, 1);
+    const value = from + (to - from) * progress;
+    onUpdate(value);
+
+    if (progress < 1) requestAnimationFrame(frame);
+    else onComplete?.();
+  }
+
+  requestAnimationFrame(frame);
+}
+
 export default function Speedometer({ value }) {
+  const [displayValue, setDisplayValue] = useState(0);
+
+  useEffect(() => {
+    // Smooth 0 → value animation
+    animate({
+      from: 0,
+      to: value,
+      duration: 700, // adjust if needed
+      onUpdate: setDisplayValue,
+    });
+  }, [value]);
+
   return (
     <ReactSpeedometer
-      value={value}
+      value={displayValue}
       minValue={0}
       maxValue={100}
       width={300}
       height={200}
-
-      // smoother arc
       segments={200}
-
-      // 20 gradient stops (must match segmentColors.length)
       customSegmentStops={[
-        0, 5, 10, 15, 20, 25, 30, 35, 40, 45,
-        50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100
+        0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85,
+        90, 95, 100,
       ]}
-
-      // 20 gradient colors (smooth transition)
       segmentColors={[
         "#00FF00",
         "#33FF00",
@@ -39,10 +62,10 @@ export default function Speedometer({ value }) {
         "#FF1900",
         "#FF0F00",
         "#FF0500",
-        "#FF0000"
+        "#FF0000",
       ]}
-
       needleColor="black"
+      // needleTransitionDuration={0} // we animate manually
       needleTransitionDuration={1500}
       needleTransition="easeElastic"
     />
