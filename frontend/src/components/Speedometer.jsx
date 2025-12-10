@@ -63,9 +63,7 @@ export default function Speedometer({ value }) {
 
       {/* RESULT TEXT (fade-in) */}
       <p
-        className={`font-mono font-bold text-gray-600 text-lg transition-opacity duration-700 ${
-          showText ? "opacity-100" : "opacity-0"
-        }`}
+        className={`font-mono font-bold text-gray-600 text-lg transition-opacity duration-700 opacity-100`}
       >
         Result : This text appears {Math.round(displayValue)}% AI Generated based on our detection model.
       </p>
