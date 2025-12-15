@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import toast from "react-hot-toast";
-import { GoBeaker } from "react-icons/go";
 import ResultBox from "./ResultBox";
+import ReadyPage from "./ReadyPage";
 
 function HomePage() {
   const [text, setText] = useState("");
@@ -106,13 +106,7 @@ function HomePage() {
           </div>
         </div>
         <div className="right w-full h-[95vh] md:h-full gap-2 flex flex-col p-4 text-center my-auto justify-center m-auto items-center ">
-          {/* <div className="w-full md:w-3/4 flex items-center flex-col gap-4 shadow-lg p-4 rounded-md border-gray-700">
-              <GoBeaker className="p-3 text-8xl text-blue-400 bg-blue-100/70 rounded-full" />
-              <p className="font-bold text-2xl font-mono">Ready to Analysis</p>
-              <p className="text-justify hyphens-auto text-lg text-gray-400 font-mono">
-               Enter the text or the File to begon the AI content detection process. Your result will be appear here.
-              </p>
-          </div> */}
+              {/* <ReadyPage /> */}
           <ResultBox />
           
         </div>
