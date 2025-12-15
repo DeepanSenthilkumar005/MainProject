@@ -5,7 +5,7 @@ export default function ResultBox({ result }) {
     <div className="w-full md:w-3/4 flex items-center flex-col gap-4 shadow-lg p-4 rounded-md border-gray-700">
       <p className="font-mono font-bold text-gray-600 text-left w-full">Analysis Results</p>
       <div className="Analysic Graph">
-        <Speedometer value={50} />
+        <Speedometer value={20} />
       </div>
       <hr />
       <div className="grid grid-cols-2 p-4 gap-4 font-mono font-semibold">

@@ -6,6 +6,7 @@ import ReadyPage from "./ReadyPage";
 function HomePage() {
   const [text, setText] = useState("");
   const [enableBtn, setEnableBtn] = useState(false);
+  const [analyse, setAnalyse] = useState(false);
   const fileRef = useRef(null);
   const [fileName, setFileName] = useState("Browse file");
 
@@ -21,6 +22,17 @@ function HomePage() {
       setEnableBtn(false);
     }
   }, [text]);
+
+  function handleClick() {
+    setAnalyse(true);
+    handleClear();
+  }
+
+  function handleClear() {
+    setText("");
+    setFileName("Browse file");
+    fileRef = null;
+  }
 
   return (
     <div className="md:max-h-screen h-fit w-full p-2 flexflex-col">
@@ -47,7 +59,9 @@ function HomePage() {
             />
           </div>
           {/* Or text will comes here */}
-          <p className="text-center md:m-2 text-2xl text-gray-600 font-mono">or</p>
+          <p className="text-center md:m-2 text-2xl text-gray-600 font-mono">
+            or
+          </p>
           {/* File Upload will comes here */}
           <div
             className={`${
@@ -72,7 +86,11 @@ function HomePage() {
 
               {/* Custom button */}
               <button
-                onClick={() => {if(text.length>0)toast.error("Clear the text in the text Area");else fileRef.current.click();}}
+                onClick={() => {
+                  if (text.length > 0)
+                    toast.error("Clear the text in the text Area");
+                  else fileRef.current.click();
+                }}
                 className={`p-2 bg-gray-300 rounded-md ${
                   text.length > 0 ? "cursor-not-allowed" : "cursor-pointer"
                 }`}
@@ -84,6 +102,7 @@ function HomePage() {
           <div className="btn flex w-full gap-2">
             <button
               type="button"
+              onClick={handleClick}
               className={`${
                 enableBtn
                   ? "bg-blue-400 cursor-pointer hover:bg-blue-500"
@@ -94,21 +113,17 @@ function HomePage() {
             </button>
             <button
               type="button"
-              className={`bg-gray-400 cursor-pointer rounded-md p-2 w-1/3 ${text.length>0?"bg-red-500 text-white":""}`}
-              onClick={() => {
-                setText("");
-                setFileName("Browse file");
-                fileRef = null;
-              }}
+              className={`bg-gray-400 cursor-pointer rounded-md p-2 w-1/3 ${
+                text.length > 0 ? "bg-red-500 text-white" : ""
+              }`}
+              onClick={handleClear}
             >
               Clear
             </button>
           </div>
         </div>
         <div className="right w-full h-[95vh] md:h-full gap-2 flex flex-col p-4 text-center my-auto justify-center m-auto items-center ">
-              {/* <ReadyPage /> */}
-          <ResultBox />
-          
+          {analyse ? <ResultBox /> : <ReadyPage />}
         </div>
       </div>
     </div>
