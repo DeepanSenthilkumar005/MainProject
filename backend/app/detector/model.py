@@ -44,51 +44,33 @@ def detect_ai_text(text: str, model_name: str = "roberta") -> dict:
     else:
         result = results
 
-    label = result["label"]  # "REAL"/"FAKE" for RoBERTa, or "entailment"/"neutral"/"contradiction" for DeBERT-MNLI
+    label = result["label"]  # "REAL"/"FAKE" for RoBERTa, or "entailment"/"neutral"/"contradiction" for DeBERT-v3
     score = result["score"]  # between 0 and 1
 
-    # Handle different label formats based on model type
     if model_name.lower() == "roberta":
-        # RoBERTa: FAKE means AI-generated
-        if label.upper() == "FAKE":
-            ai_prob = score * 100
-            human_prob = (1 - score) * 100
-        else:
-            human_prob = score * 100
-            ai_prob = (1 - score) * 100
+        # RoBERTa: Specifically trained for AI detection - trust it more
+        ai_prob = score * 100
+        human_prob = 100 - ai_prob
     else:
-        # DeBERT-MNLI: Use confidence score directly, with some heuristic
-        # High confidence in any label suggests real text, low confidence suggests AI
+        # DeBERT-v3: General purpose model - apply confidence adjustment
+        # If model is uncertain (score close to 0.5), trust it less
+        # Only be confident in predictions when score is far from 0.5
+        
         if score > 0.7:
-            # High confidence - likely human-written
-            human_prob = score * 100
-            ai_prob = (1 - score) * 100
-        elif score < 0.4:
-            # Low confidence - might be AI-generated
-            ai_prob = (1 - score) * 100
-            human_prob = score * 100
+            # High confidence in positive class - scale more moderately
+            ai_prob = 50 + (score - 0.5) * 100  # Maps 0.5->50, 0.7->70, 1.0->100
+        elif score < 0.3:
+            # High confidence in negative class
+            ai_prob = (score) * 100  # Maps 0->0, 0.3->30, 0.5->50
         else:
-            # Medium confidence - use label as tiebreaker
-            if label == "entailment":
-                human_prob = score * 100
-                ai_prob = (1 - score) * 100
-            else:
-                ai_prob = score * 100
-                human_prob = (1 - score) * 100
-
-    # Ensure at least 10% difference in probabilities
-    diff = abs(ai_prob - human_prob)
-    if diff < 10:
-        if ai_prob > human_prob:
-            ai_prob = 55
-            human_prob = 45
-        else:
-            ai_prob = 45
-            human_prob = 55
+            # Medium confidence (0.3-0.7) - be conservative, closer to 50-50
+            ai_prob = 45 + (score - 0.5) * 100  # Maps 0.3->35, 0.5->45, 0.7->65
+        
+        human_prob = 100 - ai_prob
 
     return {
         "model_used": model_name.lower(),
-        "ai_generated_percent": round(ai_prob, 2),
-        "human_written_percent": round(human_prob, 2),
+        "ai_generated_percent": round(max(0, min(100, ai_prob)), 2),  # Clamp between 0-100
+        "human_written_percent": round(max(0, min(100, human_prob)), 2),
         "prediction": "AI-generated" if ai_prob > human_prob else "Human-written"
     }
