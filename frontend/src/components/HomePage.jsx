@@ -11,6 +11,7 @@ function HomePage() {
   const [fileName, setFileName] = useState("Browse file");
   const [result, setResult] = useState(null);
   const [extractedText, setExtractedText] = useState("");
+  const [analysisTime, setAnalysisTime] = useState(0);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -28,6 +29,7 @@ function HomePage() {
   async function handleClick() {
     setAnalyse(true);
     setResult(null);
+    const startTime = Date.now();
     let textToAnalyze = text;
 
     if (fileRef.current && fileRef.current.files[0]) {
@@ -63,8 +65,15 @@ function HomePage() {
         headers: { 'Content-Type': 'text/plain' },
         body: textToAnalyze,
       });
+      const endTime = Date.now();
       const analyzeData = await analyzeRes.json();
+      if (analyzeData.error) {
+        toast.error(analyzeData.error);
+        setAnalyse(false);
+        return;
+      }
       setResult(analyzeData.analysis);
+      setAnalysisTime((endTime - startTime) / 1000); // in seconds
     } catch (e) {
       toast.error('Analysis failed: ' + e.message);
       setAnalyse(false);
@@ -169,7 +178,7 @@ function HomePage() {
           </div>
         </div>
         <div className="right w-full h-[95vh] md:h-full gap-2 flex flex-col p-4 text-center my-auto justify-center m-auto items-center ">
-          {analyse ? <ResultBox result={result} text={extractedText || text} /> : <ReadyPage />}
+          {analyse ? <ResultBox result={result} text={extractedText || text} analysisTime={analysisTime} /> : <ReadyPage />}
         </div>
       </div>
     </div>

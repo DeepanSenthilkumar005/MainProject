@@ -1,9 +1,8 @@
 import Speedometer from "./Speedometer";
 
-export default function ResultBox({ result, text }) {
+export default function ResultBox({ result, text, analysisTime }) {
   const wordCount = text ? (text.match(/\b\w+\b/g) || []).length : 0;
   const sentenceCount = text ? text.split(/[.!?]+/).filter(sent => sent.trim().length > 0).length : 0;
-  const readingTime = Math.ceil(wordCount / 200); // minutes
 
   return (
     <div className="w-full md:w-3/4 flex items-center flex-col gap-4 shadow-lg p-4 rounded-md border-gray-700">
@@ -22,9 +21,9 @@ export default function ResultBox({ result, text }) {
           <p className=" text-gray-500">Sentence Count</p>
           {sentenceCount}
         </div>
-        <div className="readingTime">
-          <p className=" text-gray-500">Reading Time (min)</p>
-          {readingTime}
+        <div className="analysisTime">
+          <p className=" text-gray-500">Analysis Time</p>
+          {analysisTime.toFixed(2)} sec
         </div>
         <div className="model">
           <p className=" text-gray-500">Model</p>
