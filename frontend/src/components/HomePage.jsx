@@ -9,6 +9,9 @@ function HomePage() {
   const [analyse, setAnalyse] = useState(false);
   const fileRef = useRef(null);
   const [fileName, setFileName] = useState("Browse file");
+  const [result, setResult] = useState(null);
+  const [extractedText, setExtractedText] = useState("");
+  const [analysisTime, setAnalysisTime] = useState(0);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -16,22 +19,74 @@ function HomePage() {
   };
 
   useEffect(() => {
-    if (text.length > 10) {
+    if (text.length > 10 || (fileRef.current && fileRef.current.files[0])) {
       setEnableBtn(true);
     } else {
       setEnableBtn(false);
     }
-  }, [text]);
+  }, [text, fileName]);
 
-  function handleClick() {
+  async function handleClick() {
     setAnalyse(true);
-    handleClear();
+    setResult(null);
+    const startTime = Date.now();
+    let textToAnalyze = text;
+
+    if (fileRef.current && fileRef.current.files[0]) {
+      // Upload file
+      const formData = new FormData();
+      formData.append('file', fileRef.current.files[0]);
+      try {
+        const uploadRes = await fetch('http://localhost:8000/upload/', {
+          method: 'POST',
+          body: formData,
+        });
+        const uploadData = await uploadRes.json();
+        if (uploadData.error) {
+          toast.error(uploadData.error);
+          setAnalyse(false);
+          return;
+        }
+        textToAnalyze = uploadData.content;
+        setExtractedText(textToAnalyze);
+      } catch (e) {
+        toast.error('Upload failed: ' + e.message);
+        setAnalyse(false);
+        return;
+      }
+    } else {
+      setExtractedText(text);
+    }
+
+    // Now analyze
+    try {
+      const analyzeRes = await fetch('http://localhost:8000/analyze/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: textToAnalyze,
+      });
+      const endTime = Date.now();
+      const analyzeData = await analyzeRes.json();
+      if (analyzeData.error) {
+        toast.error(analyzeData.error);
+        setAnalyse(false);
+        return;
+      }
+      setResult(analyzeData.analysis);
+      setAnalysisTime((endTime - startTime) / 1000); // in seconds
+    } catch (e) {
+      toast.error('Analysis failed: ' + e.message);
+      setAnalyse(false);
+    }
   }
 
   function handleClear() {
     setText("");
     setFileName("Browse file");
-    fileRef = null;
+    setExtractedText("");
+    setResult(null);
+    setAnalyse(false);
+    if (fileRef.current) fileRef.current.value = "";
   }
 
   return (
@@ -123,7 +178,7 @@ function HomePage() {
           </div>
         </div>
         <div className="right w-full h-[95vh] md:h-full gap-2 flex flex-col p-4 text-center my-auto justify-center m-auto items-center ">
-          {analyse ? <ResultBox /> : <ReadyPage />}
+          {analyse ? <ResultBox result={result} text={extractedText || text} analysisTime={analysisTime} /> : <ReadyPage />}
         </div>
       </div>
     </div>

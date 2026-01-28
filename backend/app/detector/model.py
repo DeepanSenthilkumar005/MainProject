@@ -27,6 +27,16 @@ def detect_ai_text(text: str) -> dict:
         human_prob = score * 100
         ai_prob = (1 - score) * 100
 
+    # Ensure at least 10% difference in probabilities
+    diff = abs(ai_prob - human_prob)
+    if diff < 10:
+        if ai_prob > human_prob:
+            ai_prob = 55
+            human_prob = 45
+        else:
+            ai_prob = 45
+            human_prob = 55
+
     return {
         "ai_generated_percent": round(ai_prob, 2),
         "human_written_percent": round(human_prob, 2),
