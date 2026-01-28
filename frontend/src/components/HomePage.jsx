@@ -12,6 +12,7 @@ function HomePage() {
   const [result, setResult] = useState(null);
   const [extractedText, setExtractedText] = useState("");
   const [analysisTime, setAnalysisTime] = useState(0);
+  const [selectedModel, setSelectedModel] = useState("roberta");
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -62,8 +63,11 @@ function HomePage() {
     try {
       const analyzeRes = await fetch('http://localhost:8000/analyze/', {
         method: 'POST',
-        headers: { 'Content-Type': 'text/plain' },
-        body: textToAnalyze,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: textToAnalyze,
+          model: selectedModel
+        }),
       });
       const endTime = Date.now();
       const analyzeData = await analyzeRes.json();
@@ -153,6 +157,17 @@ function HomePage() {
                 {fileName}
               </button>
             </div>
+          </div>
+          <div className="model-selector flex gap-2 items-center w-full mb-4">
+            <label className="font-semibold text-gray-700">Algorithm:</label>
+            <select
+              value={selectedModel}
+              onChange={(e) => setSelectedModel(e.target.value)}
+              className="p-2 border border-gray-300 rounded flex-1"
+            >
+              <option value="roberta">RoBERTa (Faster)</option>
+              <option value="deberta">DeBERT (More Accurate)</option>
+            </select>
           </div>
           <div className="btn flex w-full gap-2">
             <button

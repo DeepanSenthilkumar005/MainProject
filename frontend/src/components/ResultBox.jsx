@@ -27,7 +27,11 @@ export default function ResultBox({ result, text, analysisTime }) {
         </div>
         <div className="model">
           <p className=" text-gray-500">Model</p>
-          RoBERTa AI Detector
+          {result && result.model_used ? (
+            result.model_used === "roberta" ? "RoBERTa (Faster)" : "DeBERT (Accurate)"
+          ) : (
+            "Loading..."
+          )}
         </div>
       </div>
       {result && (

@@ -12,7 +12,12 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # Adjust as necessary for your frontend
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -35,6 +40,12 @@ async def upload_file(file: UploadFile = File(...)):
             temp_file.unlink()
 
 @app.post("/analyze/")
-async def analyze_text(text: str = Body(...)):
-    result = detect_ai_text(text)
+async def analyze_text(payload: dict = Body(...)):
+    text = payload.get("text")
+    model = payload.get("model", "roberta")  # Default to RoBERTa
+    
+    if not text:
+        return {"error": "No text provided"}
+    
+    result = detect_ai_text(text, model_name=model)
     return {"analysis": result}

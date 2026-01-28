@@ -5,6 +5,7 @@ function UploadBox() {
   const [result, setResult] = useState("");
   const [copied, setCopied] = useState(false);
   const [analysis, setAnalysis] = useState(null);
+  const [selectedModel, setSelectedModel] = useState("roberta");
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -54,7 +55,10 @@ function UploadBox() {
       const response = await fetch("http://127.0.0.1:8000/analyze/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(result),
+        body: JSON.stringify({
+          text: result,
+          model: selectedModel
+        }),
       });
 
       const data = await response.json();
@@ -113,12 +117,27 @@ function UploadBox() {
         Compare from Text
       </button>
 
+      <div className="mt-4 flex gap-4 items-center">
+        <label className="font-semibold text-[#f4fafe]">Select Algorithm:</label>
+        <select
+          value={selectedModel}
+          onChange={(e) => setSelectedModel(e.target.value)}
+          className="p-2 border border-gray-300 rounded bg-white"
+        >
+          <option value="roberta">RoBERTa (Faster)</option>
+          <option value="deberta">DeBERT (More Accurate)</option>
+        </select>
+      </div>
+
       {analysis && (
         <div className="mt-6 p-4 bg-white rounded shadow-md">
           <h3 className="font-semibold mb-2">Analysis Result:</h3>
-          <p>Prediction: {analysis.prediction}</p>
-          <p>AI-generated: {analysis.ai_generated_percent}%</p>
-          <p>Human-written: {analysis.human_written_percent}%</p>
+          <p className="text-sm text-gray-600 mb-2">
+            <strong>Model Used:</strong> {analysis.model_used === "roberta" ? "RoBERTa (Robustly Optimized BERT)" : "DeBERT (Disentangled Attention)"}
+          </p>
+          <p><strong>Prediction:</strong> {analysis.prediction}</p>
+          <p><strong>AI-generated:</strong> {analysis.ai_generated_percent}%</p>
+          <p><strong>Human-written:</strong> {analysis.human_written_percent}%</p>
         </div>
       )}
     </div>
